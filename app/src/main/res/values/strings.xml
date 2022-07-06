@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Weather App</string>
+    <string name="city_name_input">Введите город</string>
+    <string name="btn_find_weather">Узнать погоду</string>
+    <string name="please_wait">Ожидайте…</string>
+    <string name="empty_string">Введите текст!</string>
+</resources>
