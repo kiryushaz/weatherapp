@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         mViewModel.weatherData.observe(this) {
             binding.cityName.text = it.name
             binding.updateTime.text = SimpleDateFormat("EEE, d MMM HH:mm")
-                .format((it.dt + it.timezone).toLong() * 1000).toString()
+                .format((it.dt).toLong() * 1000).toString()
             binding.weatherTemperature.text = "${it.main.temp.roundToInt()}°C"
             binding.weatherTemperatureFeelsLike
                 .text = "ощущается как ${it.main.feelsLike.roundToInt()}°C"
@@ -39,9 +39,9 @@ class MainActivity : AppCompatActivity() {
             binding.tvDataWindSpeed.text = "${it.wind.speed} м/с"
             binding.tvDataPressure.text = "${(it.main.pressure * 0.75).roundToInt()} мм.рт.ст."
             binding.tvDataSunrise.text = SimpleDateFormat("HH:mm")
-                .format((it.sys.sunrise + it.timezone).toLong() * 1000).toString()
+                .format((it.sys.sunrise).toLong() * 1000).toString()
             binding.tvDataSunset.text = SimpleDateFormat("HH:mm")
-                .format((it.sys.sunset + it.timezone).toLong() * 1000).toString()
+                .format((it.sys.sunset).toLong() * 1000).toString()
             IconToUI(binding.weatherImage, it.weather[0].icon)
 
             binding.weatherContainerExtra.visibility = View.VISIBLE
