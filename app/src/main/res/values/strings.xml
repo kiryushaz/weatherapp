@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Weather App</string>
+    <string name="city_name_input">Введите город</string>
+    <string name="btn_find_weather">Узнать погоду</string>
+    <string name="please_wait">Ожидайте…</string>
+    <string name="empty_string">Введите текст!</string>
+    <string name="non_available">Нет данных</string>
+    <string name="tv_humidity">Влажность:</string>
+    <string name="tv_wind_speed">Скорость ветра:</string>
+    <string name="tv_pressure">Давление:</string>
+    <string name="tv_sunrise">Рассвет:</string>
+    <string name="tv_sunset">Закат:</string>
+</resources>
