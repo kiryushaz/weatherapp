@@ -24,6 +24,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val time = SimpleDateFormat("HH:mm")
+        time.timeZone = TimeZone.getTimeZone("UTC")
+
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         mViewModel.weatherData.observe(this) {
@@ -38,10 +41,10 @@ class MainActivity : AppCompatActivity() {
             binding.tvDataHumidity.text = "${it.main.humidity}%"
             binding.tvDataWindSpeed.text = "${it.wind.speed} м/с"
             binding.tvDataPressure.text = "${(it.main.pressure * 0.75).roundToInt()} мм.рт.ст."
-            binding.tvDataSunrise.text = SimpleDateFormat("HH:mm")
-                .format((it.sys.sunrise).toLong() * 1000).toString()
-            binding.tvDataSunset.text = SimpleDateFormat("HH:mm")
-                .format((it.sys.sunset).toLong() * 1000).toString()
+            binding.tvDataSunrise.text =
+                time.format((it.sys.sunrise + it.timezone).toLong() * 1000).toString()
+            binding.tvDataSunset.text =
+                time.format((it.sys.sunset + it.timezone).toLong() * 1000).toString()
             IconToUI(binding.weatherImage, it.weather[0].icon)
 
             binding.weatherContainerExtra.visibility = View.VISIBLE
