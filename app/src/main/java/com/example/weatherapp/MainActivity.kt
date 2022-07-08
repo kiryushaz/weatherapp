@@ -3,32 +3,58 @@ package com.example.weatherapp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.weatherapp.data.repository.Repository
+import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.databinding.ActivityMainBinding
 import com.example.weatherapp.utils.IconToUI
-import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var mViewModel: MainViewModel
 
-    @SuppressLint("SetTextI18n")
-    @OptIn(DelicateCoroutinesApi::class)
+    @SuppressLint("SetTextI18n", "SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val progressBar: ProgressBar = binding.progressBar
-        val button: Button = binding.buttonGetWeather
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        mViewModel.weatherData.observe(this) {
+            binding.cityName.text = it.name
+            binding.updateTime.text = SimpleDateFormat("EEE, d MMM HH:mm")
+                .format((it.dt + it.timezone).toLong() * 1000).toString()
+            binding.weatherTemperature.text = "${it.main.temp.roundToInt()}°C"
+            binding.weatherTemperatureFeelsLike
+                .text = "ощущается как ${it.main.feelsLike.roundToInt()}°C"
+            binding.weatherDescription.text = it.weather[0].description
+
+            binding.tvDataHumidity.text = "${it.main.humidity}%"
+            binding.tvDataWindSpeed.text = "${it.wind.speed} м/с"
+            binding.tvDataPressure.text = "${(it.main.pressure * 0.75).roundToInt()} мм.рт.ст."
+            binding.tvDataSunrise.text = SimpleDateFormat("HH:mm")
+                .format((it.sys.sunrise + it.timezone).toLong() * 1000).toString()
+            binding.tvDataSunset.text = SimpleDateFormat("HH:mm")
+                .format((it.sys.sunset + it.timezone).toLong() * 1000).toString()
+            IconToUI(binding.weatherImage, it.weather[0].icon)
+
+            binding.weatherContainerExtra.visibility = View.VISIBLE
+        }
+
+        mViewModel.weatherDataError.observe(this) {
+            Toast.makeText(this, "Ошибка: $it", Toast.LENGTH_LONG).show()
+        }
+
+        val progressBar: ProgressBar = binding.progressBar
         val systemLanguage = Locale.getDefault().language
 
-        button.setOnClickListener {
+        binding.buttonGetWeather.setOnClickListener {
             val city = binding.inputCityName.text.toString().trim()
 
             if (city.isEmpty()) {
@@ -36,30 +62,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 progressBar.visibility = View.VISIBLE
 
-                val repo = Repository()
+                mViewModel.launch(city, systemLanguage)
 
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        val result = repo.getCurrentWeather(city, systemLanguage)
-
-                        withContext(Dispatchers.Main) {
-                            binding.cityName.text = "${result.name}, ${result.sys.country}"
-                            binding.weatherTemperature.text = "${result.main.temp.roundToInt()}°C"
-                            binding.weatherTemperatureFeelsLike.text = "ощущается как ${result.main.feelsLike.roundToInt()}°C"
-                            binding.weatherDescription.text = result.weather[0].description
-
-                            IconToUI(binding.weatherImage, result.weather[0].icon)
-
-                            progressBar.visibility = View.GONE
-                        }
-                    } catch (err: Exception) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@MainActivity, err.message, Toast.LENGTH_LONG).show()
-
-                            progressBar.visibility = View.GONE
-                        }
-                    }
-                }
+                progressBar.visibility = View.GONE
             }
         }
     }
